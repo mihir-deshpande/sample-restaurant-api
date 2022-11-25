@@ -1,25 +1,36 @@
-var express  = require('express');
-var mongoose = require('mongoose');
-var app   = express();
-require('dotenv').config()
-var bodyParser = require('body-parser');  
+//express
+var express = require("express");
+var app = express();
+
+//environment
+require("dotenv").config();
+
+//helper
+var bodyParser = require("body-parser");
 var path = require("path");
 
-app.use(express.static(path.join(__dirname, "public")));
+//database
+const dbFunctions = require("./database/dbFunctions");
+//dbFunctions is an object that has all the functions that we export in dbFunctions.js
 
+//handlebars
 const exphbs = require("express-handlebars");
 app.engine(".hbs", exphbs.engine({ extname: ".hbs" }));
 app.set("view engine", "hbs");
 
-var PORT  = process.env.PORT || 8000;
-app.use(bodyParser.urlencoded({'extended':'true'}));
+//set PORT
+var PORT = process.env.PORT || 8000;
 
-app.get('/', function(req, res) {
-    res.render("index");
+//set up app
+app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.urlencoded({ extended: "true" }));
+
+//ROUTES
+app.get("/", function (req, res) {
+  res.render("index");
 });
 
-
+//START SERVER
 app.listen(PORT, () => {
-    console.log("Express http server listening on: " + PORT);
+  console.log("Express http server listening on: " + PORT);
 });
-
