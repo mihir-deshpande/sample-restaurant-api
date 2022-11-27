@@ -9,4 +9,4 @@ RestaurantSchema = new Schema({
   name: String,
   restaurant_id: String,
 });
-module.exports = mongoose.model("Employee", RestaurantSchema);
+module.exports = mongoose.model("Restaurant", RestaurantSchema);
