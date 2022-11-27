@@ -34,6 +34,34 @@ app.get("/", function (req, res) {
 });
 
 
+app.get("/api/restaurants/", function (req, res) {
+  let page = req.query.page;
+  let perPage = req.query.perPage;
+  let borough = req.query.borough;
+
+  db.getAllRestaurants(page, perPage, borough).then((restaurants) => {
+    res.status(200).json(restaurants);
+  })
+  .catch((error) => {
+    console.log(error.message)
+    res.status(500).send(error.message);
+  })
+});
+
+// find restaurant by id 
+app.get("/api/restaurants/:id", function (req, res) {
+
+  let id = req.params.id;
+
+  db.getRestaurantById(id).then((restaurant) => {
+    res.status(200).json(restaurant);
+  })
+  .catch((error) => {
+    console.log(error.message)
+    res.status(500).send(error.message);
+  })
+});
+
 //START SERVER
 app.listen(PORT, () => {
   console.log("Express http server listening on: " + PORT);
