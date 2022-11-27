@@ -10,8 +10,10 @@ var bodyParser = require("body-parser");
 var path = require("path");
 
 //database
-const dbFunctions = require("./database/dbFunctions");
-//dbFunctions is an object that has all the functions that we export in dbFunctions.js
+//db is an object that has all the functions that we export in dbFunctions.js
+const db = require("./database/dbFunctions");
+
+db.initialize(db.URL);
 
 //handlebars
 const exphbs = require("express-handlebars");
@@ -25,10 +27,12 @@ var PORT = process.env.PORT || 8000;
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: "true" }));
 
+
 //ROUTES
 app.get("/", function (req, res) {
   res.render("index");
 });
+
 
 //START SERVER
 app.listen(PORT, () => {
