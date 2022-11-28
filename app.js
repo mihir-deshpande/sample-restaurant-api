@@ -67,9 +67,6 @@ app.get("/api/restaurants/:id", function (req, res) {
 // TODO Display grade by latest date, proper validation
 app.get("/restaurants", function (req, res) {
   res.render('display');
-  db.getAllRestaurants(1,500).then((restaurants) => {
-    res.render('display',{ data: restaurants })
-  })
 });
 
 app.post("/restaurants", function (req, res) {
