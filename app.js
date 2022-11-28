@@ -62,6 +62,27 @@ app.get("/api/restaurants/:id", function (req, res) {
   })
 });
 
+
+// display restaurants using template engine
+// TODO Display grade by latest date, proper validation
+app.get("/restaurants", function (req, res) {
+  res.render('display');
+  db.getAllRestaurants(1,500).then((restaurants) => {
+    res.render('display',{ data: restaurants })
+  })
+});
+
+app.post("/restaurants", function (req, res) {
+  let page = req.body.page;
+  let perPage = req.body.perPage;
+  let borough = req.body.borough;
+
+  db.getAllRestaurants(page, perPage, borough).then((restaurants) => {
+    res.render('display',{ data: restaurants })
+  })
+  
+});
+
 //START SERVER
 app.listen(PORT, () => {
   console.log("Express http server listening on: " + PORT);

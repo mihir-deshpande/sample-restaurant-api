@@ -1,0 +1,55 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <form class="form-border" method="post" action="/restaurants">
+            <div class="form-group">
+                <label for="page" class="placeholders">Page</label>
+                <input type="name" class="form-control" name="page" id="page" placeholder="Enter page number">
+            </div>
+            <div class="form-group">
+                <label for="page" class="placeholders">Per Page</label>
+                <input type="name" class="form-control" name="perPage" id="perPage"
+                    placeholder="Enter number of items per page">
+            </div>
+            <div class="form-group">
+                <label for="page" class="placeholders">Borough</label>
+                <input type="name" class="form-control" name="borough" id="borough" placeholder="Enter borough">
+            </div>
+            <br />
+            <button type="submit" class="btn btn-outline-dark btn-block">Search</button><br />
+        </form>
+    </div>
+
+    {{#if data}}
+    <br />
+    <div class="table-responsive">
+        <table class="table table-hover table-striped table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">Restaurant Name</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Cusine</th>
+                    <th scope="col">Borough</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                {{#each data}}
+                <tr>
+                    <td>{{ this.name }}</td>
+                    <td>{{ this.restaurant_id }}</td>
+                    <td>{{ this.cuisine }}</td>
+                    <td>{{ this.borough }}</td>
+                    <td>{{ this.address.building }} {{ this.address.street }}, {{ this.address.zipcode}}</td>
+                    <td>
+                        {{ this.grades.1.grade }}
+                    </td>
+                </tr>
+                {{/each}}
+              
+            </tbody>
+        </table>
+        {{/if}}
+
+    </div>

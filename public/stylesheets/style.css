@@ -8,3 +8,7 @@
 thead {
   position: sticky;top: 0;background-color:black;color:white
 }
+
+.table-responsive {
+  max-height:50vh;
+}
