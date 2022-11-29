@@ -21,7 +21,7 @@ function initialize(URL) {
       console.log(err);
     })
     .then(() => {
-      console.log("Success");
+      console.log("Connected to database");
     });
 }
 
@@ -63,6 +63,11 @@ async function getRestaurantById(id) {
   return await Restaurant.findById(id).lean().exec();
 }
 
+// find restaurant by restaurant id
+async function findByRestaurantId(id) {
+  return await Restaurant.find({ restaurant_id: id }).exec();
+}
+
 // update restaurant info
 async function updateRestaurantById(data, id) {
   return await Restaurant.findByIdAndUpdate(id, data).exec();
@@ -81,4 +86,5 @@ module.exports = {
   getRestaurantById,
   updateRestaurantById,
   deleteRestaurantById,
+  findByRestaurantId,
 };

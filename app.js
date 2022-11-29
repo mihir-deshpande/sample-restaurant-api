@@ -21,6 +21,7 @@ Joi.objectId = require("joi-objectid")(Joi); // custom MongoDB ObjectId validato
 
 //handlebars
 const exphbs = require("express-handlebars");
+const e = require("express");
 app.engine(".hbs", exphbs.engine({ extname: ".hbs" }));
 app.set("view engine", "hbs");
 
@@ -112,9 +113,6 @@ app.use(errors());
 
 //Route to add new data
 //TODO complete celebrate
-app.get("/add", function (req, res) {
-  res.render("add");
-});
 app.post(
   "/add",
   celebrate({
@@ -123,7 +121,7 @@ app.post(
       //grades is array
     }),
   }),
-  function (req, res) {
+  async function (req, res) {
     const data = {
       address: req.body.address,
       borough: req.body.borough,
@@ -132,9 +130,15 @@ app.post(
       name: req.body.name,
       restaurant_id: req.body.id,
     };
-    db.addNewRestaurant(data);
+    await db.addNewRestaurant(data);
 
-    //TODO what to do after adding new record ?
+    //TODO send response after adding
+    const result = await db.findByRestaurantId(req.body.id);
+    if (result) {
+      //successful
+    } else {
+      //unsuccessful
+    }
   }
 );
 
@@ -148,17 +152,24 @@ app.put(
       //grades is array
     }),
   }),
-  function (req, res) {
+  async function (req, res) {
     const data = {
       address: req.body.address,
       borough: req.body.borough,
       cuisine: req.body.cuisine,
       grades: req.body.grade,
       name: req.body.name,
+      restaurant_id: req.body.id,
     };
-    db.updateRestaurantById(data, req.body.id);
+    await db.updateRestaurantById(data, req.body.id);
 
-    //TODO what to do after updating record ?
+    //TODO send response after adding
+    const result = await db.findByRestaurantId(req.body.id);
+    if (result) {
+      //successful
+    } else {
+      //unsuccessful
+    }
   }
 );
 
@@ -173,7 +184,7 @@ app.delete(
   function (req, res) {
     db.deleteRestaurantById(req.params.id);
 
-    //TODO what to do after updating record ?
+    //TODO what to do after deleting record ?
   }
 );
 
