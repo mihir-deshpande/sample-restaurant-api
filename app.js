@@ -40,7 +40,13 @@ app.get("/", function (req, res) {
 });
 
 
-app.get("/api/restaurants/", function (req, res) {
+app.get("/api/restaurants/",celebrate({
+  [Segments.QUERY]: Joi.object().keys({
+    page: Joi.string().required(),
+    perPage: Joi.string().required(),
+    borough: Joi.string()
+  }),
+}), function (req, res) {
   let page = req.query.page;
   let perPage = req.query.perPage;
   let borough = req.query.borough;
