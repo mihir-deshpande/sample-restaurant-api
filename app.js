@@ -184,9 +184,13 @@ app.delete(
     }),
   }),
   function (req, res) {
-    db.deleteRestaurantById(req.params.id);
+    db.deleteRestaurantById(req.params.id).then((restarant) => {
+      res.status(201).json({statusCode: 201, message: "Deleted"});
+    })
+    .catch((error) => {
+      res.status(500).json({ statusCode: 500, message: error.message });
+    });
 
-    //TODO what to do after deleting record ?
   }
 );
 
