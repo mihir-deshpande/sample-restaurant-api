@@ -17,9 +17,11 @@
   },
   "homepage": "https://github.com/mihir-deshpande/ITE5315-FinalProject#readme",
   "dependencies": {
+    "celebrate": "^15.0.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-handlebars": "^6.0.6",
+    "joi-objectid": "^4.0.2",
     "mongoose": "^6.7.2"
   }
 }
