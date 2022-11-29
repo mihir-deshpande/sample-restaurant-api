@@ -18,37 +18,39 @@
             <button type="submit" class="btn btn-outline-dark btn-block">Search</button><br />
         </form>
     </div>
+</div>
 
-    {{#if data}}
-    <br />
-    <div class="table-responsive">
-        <table class="table table-hover table-striped table-dark">
-            <thead>
-                <tr>
-                    <th scope="col">Restaurant Name</th>
-                    <th scope="col">ID</th>
-                    <th scope="col">Cusine</th>
-                    <th scope="col">Borough</th>
-                    <th scope="col">Address</th>
-                    <th scope="col">Grade</th>
-                </tr>
-            </thead>
-            <tbody>
-                
-                {{#each data}}
-                <tr>
-                    <td>{{ this.name }}</td>
-                    <td>{{ this.restaurant_id }}</td>
-                    <td>{{ this.cuisine }}</td>
-                    <td>{{ this.borough }}</td>
-                    <td>{{ this.address.building }} {{ this.address.street }}, {{ this.address.zipcode}}</td>
-                    <td> {{ this.grades.1.grade }}                     
-                    </td>
-                </tr>
-                {{/each}}
-              
-            </tbody>
-        </table>
-        {{/if}}
 
-    </div>
+{{#if data}}
+<br />
+<div class="table-responsive">
+    <table class="table table-hover table-striped table-dark">
+        <thead>
+            <tr>
+                <th scope="col">Restaurant Name</th>
+                <th scope="col">ID</th>
+                <th scope="col">Cusine</th>
+                <th scope="col">Borough</th>
+                <th scope="col">Address</th>
+                <th scope="col">Grade</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            {{#each data}}
+            <tr>
+                <td>{{ this.name }}</td>
+                <td>{{ this.restaurant_id }}</td>
+                <td>{{ this.cuisine }}</td>
+                <td>{{ this.borough }}</td>
+                <td>{{ this.address.building }} {{ this.address.street }}, {{ this.address.zipcode}}</td>
+                <td> {{ this.grades.1.grade }}                     
+                </td>
+            </tr>
+            {{/each}}
+            
+        </tbody>
+    </table>
+    {{/if}}
+
+</div>
