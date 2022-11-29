@@ -121,7 +121,7 @@ app.post(
   //     //grades is array
   //   }),
   // }),
-  async function (req, res) {
+  function (req, res) {
     const data = {
       address: req.body.address,
       borough: req.body.borough,
@@ -130,18 +130,13 @@ app.post(
       name: req.body.name,
       restaurant_id: req.body.restaurant_id,
     };
-    await db.addNewRestaurant(data);
-
-    //TODO send response after adding
-    const result = await db.findByRestaurantId(req.body.restaurant_id);
-    if (result) {
-      //successful
-      console.log(result);
-      res.send(result);
-    } else {
-      //unsuccessful
-      console.log("error");
-    }
+    db.addNewRestaurant(data)
+      .then((restaurant) => {
+        res.status(201).json(restaurant);
+      })
+      .catch((err) => {
+        res.status(500).json({ statusCode: 500, message: error.message });
+      });
   }
 );
 
@@ -149,12 +144,12 @@ app.post(
 //TODO complete celebrate
 app.put(
   "/api/restaurants",
-  celebrate({
-    [Segments.BODY]: Joi.object().keys({
-      //address is object
-      //grades is array
-    }),
-  }),
+  // celebrate({
+  //   [Segments.BODY]: Joi.object().keys({
+  //     //address is object
+  //     //grades is array
+  //   }),
+  // }),
   async function (req, res) {
     const data = {
       address: req.body.address,
@@ -162,18 +157,21 @@ app.put(
       cuisine: req.body.cuisine,
       grades: req.body.grade,
       name: req.body.name,
-      restaurant_id: req.body.id,
+      restaurant_id: req.body.restaurant_id,
     };
-    await db.updateRestaurantById(data, req.body.id);
 
-    //TODO send response after adding
-    const result = await db.findByRestaurantId(req.body.id);
-    if (result) {
-      //successful
-      res.send(result);
-    } else {
-      //unsuccessful
-    }
+    db.updateRestaurantById(data, req.body.id)
+      .then((restaurant) => {
+        console.log(restaurant._id.toString());
+        return db.getRestaurantById(restaurant._id.toString());
+      })
+      .then((result) => {
+        console.log(result);
+        res.status(201).json(result);
+      })
+      .catch((error) => {
+        res.status(500).json({ statusCode: 500, message: error.message });
+      });
   }
 );
 
