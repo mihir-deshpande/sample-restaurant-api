@@ -114,13 +114,13 @@ app.use(errors());
 //Route to add new data
 //TODO complete celebrate
 app.post(
-  "/add",
-  celebrate({
-    [Segments.BODY]: Joi.object().keys({
-      //address is object
-      //grades is array
-    }),
-  }),
+  "/api/restaurants",
+  // celebrate({
+  //   [Segments.BODY]: Joi.object().keys({
+  //     //address is object
+  //     //grades is array
+  //   }),
+  // }),
   async function (req, res) {
     const data = {
       address: req.body.address,
@@ -128,16 +128,19 @@ app.post(
       cuisine: req.body.cusine,
       grades: req.body.grade,
       name: req.body.name,
-      restaurant_id: req.body.id,
+      restaurant_id: req.body.restaurant_id,
     };
     await db.addNewRestaurant(data);
 
     //TODO send response after adding
-    const result = await db.findByRestaurantId(req.body.id);
+    const result = await db.findByRestaurantId(req.body.restaurant_id);
     if (result) {
       //successful
+      console.log(result);
+      res.send(result);
     } else {
       //unsuccessful
+      console.log("error");
     }
   }
 );
@@ -145,7 +148,7 @@ app.post(
 //Route to update with id
 //TODO complete celebrate
 app.put(
-  "/update",
+  "/api/restaurants",
   celebrate({
     [Segments.BODY]: Joi.object().keys({
       //address is object
@@ -167,6 +170,7 @@ app.put(
     const result = await db.findByRestaurantId(req.body.id);
     if (result) {
       //successful
+      res.send(result);
     } else {
       //unsuccessful
     }
@@ -175,7 +179,7 @@ app.put(
 
 //Route to delete by id
 app.delete(
-  "/delete/:id",
+  "/api/restaurants/:id",
   celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       id: Joi.objectId(), // validate if id is MongoDB object id
