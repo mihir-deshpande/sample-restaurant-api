@@ -44,7 +44,12 @@
                 <td>{{ this.cuisine }}</td>
                 <td>{{ this.borough }}</td>
                 <td>{{ this.address.building }} {{ this.address.street }}, {{ this.address.zipcode}}</td>
-                <td> {{ this.grades.1.grade }}                     
+                <td> 
+                    <ul>
+                    {{#each this.grades }}  
+                        <li>{{this.date}} - <strong>{{this.grade}}</strong> </li>
+                    {{/each}}    
+                    </ul>               
                 </td>
             </tr>
             {{/each}}

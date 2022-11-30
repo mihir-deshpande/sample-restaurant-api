@@ -103,6 +103,30 @@ app.post(
     let borough = req.body.borough;
 
     db.getAllRestaurants(page, perPage, borough).then((restaurants) => {
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      restaurants.forEach((restaurant) => {
+        restaurant.grades.forEach((object) => {
+          object.date =
+            months[object.date.getMonth()] +
+            " " +
+            object.date.getDate() +
+            " " +
+            object.date.getFullYear();
+        });
+      });
       res.render("display", { data: restaurants });
     });
   }
@@ -184,13 +208,13 @@ app.delete(
     }),
   }),
   function (req, res) {
-    db.deleteRestaurantById(req.params.id).then((restarant) => {
-      res.status(201).json({statusCode: 201, message: "Deleted"});
-    })
-    .catch((error) => {
-      res.status(500).json({ statusCode: 500, message: error.message });
-    });
-
+    db.deleteRestaurantById(req.params.id)
+      .then((restarant) => {
+        res.status(201).json({ statusCode: 201, message: "Deleted" });
+      })
+      .catch((error) => {
+        res.status(500).json({ statusCode: 500, message: error.message });
+      });
   }
 );
 
