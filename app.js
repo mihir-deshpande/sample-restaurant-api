@@ -157,7 +157,7 @@ app.post(
       .then((restaurant) => {
         res.status(201).json(restaurant);
       })
-      .catch((err) => {
+      .catch((error) => {
         res.status(500).json({ statusCode: 500, message: error.message });
       });
   }
