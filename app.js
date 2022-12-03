@@ -92,13 +92,13 @@ app.post(
   "/restaurants",
   celebrate({
     [Segments.BODY]: Joi.object().keys({
-      page: Joi.string().required(),
-      perPage: Joi.string().required(),
-      borough: Joi.string(),
+      page: Joi.number().min(1).required(),
+      perPage: Joi.number().min(1).required(),
+      borough: Joi.string().allow('').optional(),
     }),
   }),
   function (req, res) {
-    let page = req.body.page;
+    let page    = req.body.page;
     let perPage = req.body.perPage;
     let borough = req.body.borough;
 
