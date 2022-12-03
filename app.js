@@ -132,8 +132,7 @@ app.post(
   }
 );
 
-// Error route for celebrate
-app.use(errors());
+
 
 //Route to add new data
 //TODO complete celebrate
@@ -219,6 +218,9 @@ app.delete(
 );
 
 //TODO add security feature
+
+// Error route for celebrate
+app.use(errors());
 
 //START SERVER
 app.listen(PORT, () => {
