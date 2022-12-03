@@ -41,8 +41,8 @@ app.get(
   "/api/restaurants/",
   celebrate({
     [Segments.QUERY]: Joi.object().keys({
-      page: Joi.string().required(),
-      perPage: Joi.string().required(),
+      page: Joi.number().min(1).required(),
+      perPage: Joi.number().min(1).required(),
       borough: Joi.string(),
     }),
   }),
