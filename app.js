@@ -147,12 +147,16 @@ app.post(
 app.post(
   "/api/restaurants",
   verifyToken,
-  // celebrate({
-  //   [Segments.BODY]: Joi.object().keys({
-  //     //address is object
-  //     //grades is array
-  //   }),
-  // }),
+  celebrate({
+     [Segments.BODY]: Joi.object().keys({
+      address: Joi.object().allow("").optional(),
+      name: Joi.string().required(),
+      borough: Joi.string().allow("").optional(),
+      cuisine: Joi.string().allow("").optional(),
+      restaurant_id: Joi.string().allow("").optional(),
+      grade: Joi.array().allow("").optional()
+   }),
+ }),
   function (req, res) {
     const data = {
       address: req.body.address,
@@ -177,12 +181,19 @@ app.post(
 app.put(
   "/api/restaurants/:id",
   verifyToken,
-  // celebrate({
-  //   [Segments.BODY]: Joi.object().keys({
-  //     //address is object
-  //     //grades is array
-  //   }),
-  // }),
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+     address: Joi.object().allow("").optional(),
+     name: Joi.string().required(),
+     borough: Joi.string().allow("").optional(),
+     cuisine: Joi.string().allow("").optional(),
+     restaurant_id: Joi.string().allow("").optional(),
+     grade: Joi.array().allow("").optional()
+  }),
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.objectId(), // validate if id is MongoDB object id
+  }),
+}),
   async function (req, res) {
     console.log(req.body);
     const data = {
@@ -201,7 +212,7 @@ app.put(
       })
       .then((result) => {
         console.log(result);
-        res.status(201).json(result);
+        res.status(202).json(result);
       })
       .catch((error) => {
         res.status(500).json({ statusCode: 500, message: error.message });
@@ -221,7 +232,7 @@ app.delete(
   function (req, res) {
     db.deleteRestaurantById(req.params.id)
       .then((restarant) => {
-        res.status(200).json({ statusCode: 200, message: "Deleted" });
+        res.status(202).json({ statusCode: 200, message: "Deleted" });
       })
       .catch((error) => {
         res.status(500).json({ statusCode: 500, message: error.message });
