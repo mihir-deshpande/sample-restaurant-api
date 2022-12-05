@@ -5,7 +5,13 @@ RestaurantSchema = new Schema({
   address: Object,
   borough: String,
   cuisine: String,
-  grades: Array,
+  grades: [
+    {
+      date: Date,
+      grade: String,
+      score: Number
+    }
+  ],
   name: String,
   restaurant_id: String,
 });

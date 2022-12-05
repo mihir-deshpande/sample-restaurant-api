@@ -384,12 +384,8 @@ app.post("/gui/add", (req, res) => {
       {
         date:
           req.body.date == ""
-            ? { $date: { $numberLong: new Date().getUTCMilliseconds } }
-            : {
-                $date: {
-                  $numberLong: new Date(req.body.date).getUTCMilliseconds,
-                },
-              },
+            ? new Date()
+            : new Date(req.body.date),
         grade: req.body.grade,
         score: parseFloat(req.body.score),
       },
@@ -397,6 +393,7 @@ app.post("/gui/add", (req, res) => {
     name: req.body.name,
     restaurant_id: req.body.restaurant_id,
   };
+  console.log(data.grade[0].date);
 
   axios({
     method: "post",
@@ -428,13 +425,9 @@ app.post("/gui/update", (req, res) => {
     grade: [
       {
         date:
-          req.body.date == ""
-            ? { $date: { $numberLong: new Date().getUTCMilliseconds } }
-            : {
-                $date: {
-                  $numberLong: new Date(req.body.date).getUTCMilliseconds,
-                },
-              },
+        req.body.date == ""
+          ? new Date()
+          : new Date(req.body.date),
         grade: req.body.grade == "" ? undefined : req.body.grade,
         score: req.body.score == "" ? undefined : parseFloat(req.body.score),
       },
@@ -471,6 +464,7 @@ app.post("/gui/view", (req, res) => {
     method: "get",
     url: `${req.headers.origin}/api/restaurants/${req.body.id}`,
   }).then((response) => {
+    console.log(response.data)
     res.render("record", { data: response.data });
   });
 });
