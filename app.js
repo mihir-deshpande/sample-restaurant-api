@@ -19,6 +19,11 @@ db.initialize(db.URL);
 const { celebrate, Joi, errors, Segments } = require("celebrate");
 Joi.objectId = require("joi-objectid")(Joi); // custom MongoDB ObjectId validator for Joi.
 
+//security features
+const User = require("./database/user");
+const bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
+
 //handlebars
 const exphbs = require("express-handlebars");
 app.engine(".hbs", exphbs.engine({ extname: ".hbs" }));
@@ -64,6 +69,7 @@ app.get(
 // find restaurant by id
 app.get(
   "/api/restaurants/:id",
+  verifyToken,
   celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       id: Joi.objectId(), // validate if id is MongoDB object id
@@ -214,6 +220,111 @@ app.delete(
   }
 );
 
+// Register
+app.post("/register",
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      name: Joi.string().required(),
+      password: Joi.string().min(4).alphanum().required(),
+      email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+    })
+  }),
+  async (req, res) => {
+
+    try {
+      // Get user input
+      var name = req.body.name;
+      var email = req.body.email;
+      var password = req.body.password;
+
+      // check if user already exist
+      // Validate if user exist in our database
+      const oldUser = await User.findOne({ email });
+
+      if (oldUser) {
+        return res.status(409).send("User Already Exist. Please Login");
+      }
+      else {
+        //Encrypt user password
+      const salt = await bcrypt.genSalt(10);
+      encryptedPassword = await bcrypt.hash(password, salt);
+
+      // Create user in our database
+      const user = await User.create({
+        name,
+        email: email.toLowerCase(), // sanitize: convert email to lowercase
+        password: encryptedPassword,
+      });
+
+      // Create token
+      const token = jwt.sign(
+        { user_id: user._id, email },
+        process.env.ACCESS_TOKEN,
+        { expiresIn: "4h", }
+      );
+      // save user token
+      user.token = token;
+
+      // return new user
+      res.status(201).json(user);
+      } 
+    } catch (err) {
+      console.log(err);
+    }
+  });
+
+// Login
+app.post("/login",
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }), // validate email
+      password: Joi.string().min(4).alphanum().required(), // validate password
+    })
+  }),
+  async (req, res) => {
+
+    try {
+      var email = req.body.email;
+      var password = req.body.password;
+
+      // Validate if user exist in our database
+      const user = await User.findOne({ email });
+
+      // compare user credentials with database
+      if (user && (await bcrypt.compare(password, user.password))) {
+        // Create token
+        const token = jwt.sign( { user_id: user._id, email }, process.env.ACCESS_TOKEN, { expiresIn: "4h", });
+        // save user token
+        user.token = token;
+        // user
+        res.status(200).json(user);
+      }
+      else{
+        res.status(400).send("Invalid Credentials");
+      }
+    } 
+    catch (err) {
+      console.log(err);
+    }
+  });
+
+
+// Middleware to verify access token  
+function verifyToken(req, res, next) {
+  const accessToken = req.body.token || req.query.token || req.headers["x-access-token"];
+ 
+  if (!accessToken) {
+    return res.status(403).send({statusCode: 403, message: "Missing Authentication Token"});
+  }
+  try {
+    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN); // verify access token
+    req.user = decoded;
+  } catch (err) {
+    return res.status(401).send({statusCode: 401, message: `Invalid Authentication Token! ${err}`});
+  }
+  return next();
+}
+
 //BONUS FRONT END
 const axios = require("axios");
 
@@ -241,8 +352,6 @@ app.post("/gui", (req, res) => {
 app.post("/gui/add", (req, res) => {
   res.send(req.body);
 });
-
-//TODO add security feature
 
 // Error route for celebrate
 app.use(errors());
