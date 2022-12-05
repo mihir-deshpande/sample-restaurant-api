@@ -38,7 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: "true" }));
 
 //ROUTES
-app.get("/", verifyToken, function (req, res) {
+app.get("/", function (req, res) {
   res.render("index");
 });
 
