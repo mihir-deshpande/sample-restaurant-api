@@ -353,6 +353,9 @@ app.post("/gui/add", (req, res) => {
   res.send(req.body);
 });
 
+// GraphQL 
+require('./graphql')(app);
+
 // Error route for celebrate
 app.use(errors());
 
