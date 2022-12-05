@@ -146,6 +146,7 @@ app.post(
 //TODO complete celebrate
 app.post(
   "/api/restaurants",
+  verifyToken,
   // celebrate({
   //   [Segments.BODY]: Joi.object().keys({
   //     //address is object
@@ -175,6 +176,7 @@ app.post(
 //TODO complete celebrate
 app.put(
   "/api/restaurants/:id",
+  verifyToken,
   // celebrate({
   //   [Segments.BODY]: Joi.object().keys({
   //     //address is object
@@ -210,6 +212,7 @@ app.put(
 //Route to delete by id
 app.delete(
   "/api/restaurants/:id",
+  verifyToken,
   celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       id: Joi.objectId(), // validate if id is MongoDB object id
@@ -353,6 +356,7 @@ function verifyToken(req, res, next) {
 
 //BONUS FRONT END
 const axios = require("axios");
+const user = require("./database/user");
 
 //give user option to choose operation
 app.get("/gui", (req, res) => {
@@ -408,9 +412,13 @@ app.post("/gui/add", (req, res) => {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       "Content-Type": "application/json",
+      "x-access-token": process.env.DEV_ACCESS_TOKEN
     },
   }).then((response) => {
     res.render("record", { data: response.data });
+  })
+  .catch((err) => {
+    res.send(JSON.stringify(err.response.data))
   });
 });
 
@@ -450,9 +458,13 @@ app.post("/gui/update", (req, res) => {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       "Content-Type": "application/json",
+      "x-access-token": process.env.DEV_ACCESS_TOKEN
     },
   }).then((response) => {
     res.render("record", { data: response.data });
+  })
+  .catch((err) => {
+    res.send(JSON.stringify(err.response.data))
   });
 });
 
@@ -460,8 +472,14 @@ app.post("/gui/delete", (req, res) => {
   axios({
     method: "delete",
     url: `${req.headers.origin}/api/restaurants/${req.body.id}`,
+    headers: {
+      "x-access-token": process.env.DEV_ACCESS_TOKEN
+    }
   }).then((response) => {
     res.json(response.data);
+  })
+  .catch((err) => {
+    res.send(JSON.stringify(err.response.data))
   });
 });
 
@@ -472,6 +490,9 @@ app.post("/gui/view", (req, res) => {
   }).then((response) => {
     console.log(response.data)
     res.render("record", { data: response.data });
+  })  
+  .catch((err) => {
+    res.send(JSON.stringify(err.response.data))
   });
 });
 
