@@ -226,6 +226,9 @@ app.delete(
   }
 );
 
+app.get("/register", function (req, res) {
+  res.render("register");
+});
 // Register
 app.post(
   "/register",
@@ -283,6 +286,9 @@ app.post(
 );
 
 // Login
+app.get("/login", function (req, res) {
+  res.render("login");
+});
 app.post(
   "/login",
   celebrate({
@@ -315,7 +321,7 @@ app.post(
         // user
         res.status(200).json(user);
       } else {
-        res.status(400).send("Invalid Credentials");
+        res.status(400).send("{ statusCode: 400, message: 'Invalid credentials' }");
       }
     } catch (err) {
       console.log(err);
