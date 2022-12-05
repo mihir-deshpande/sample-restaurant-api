@@ -69,7 +69,6 @@ app.get(
 // find restaurant by id
 app.get(
   "/api/restaurants/:id",
-  verifyToken,
   celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       id: Joi.objectId(), // validate if id is MongoDB object id
@@ -151,7 +150,7 @@ app.post(
     const data = {
       address: req.body.address,
       borough: req.body.borough,
-      cuisine: req.body.cusine,
+      cuisine: req.body.cuisine,
       grades: req.body.grade,
       name: req.body.name,
       restaurant_id: req.body.restaurant_id,
@@ -374,10 +373,10 @@ app.post("/gui/add", (req, res) => {
       zipcode: req.body.zipcode,
     },
     borough: req.body.borough,
-    cusine: req.body.cuisine,
+    cuisine: req.body.cuisine,
     grade: [
       {
-        date: new Date(req.body.date),
+        date: req.body.date == "" ? new Date() : new Date(req.body.date),
         grade: req.body.grade,
         score: parseFloat(req.body.score),
       },
@@ -399,24 +398,26 @@ app.post("/gui/add", (req, res) => {
 });
 
 app.post("/gui/update", (req, res) => {
+  //TODO check if user did not enter anyhting
+
   const data = {
     address: {
-      building: req.body.buildingNumber,
-      coord: [parseFloat(req.body.latitude), parseFloat(req.body.longitude)],
-      street: req.body.street,
-      zipcode: req.body.zipcode,
+      building: req.body.buildingNumber == "" ? null : req.body.buildingNumber,
+      coord: [parseFloat(req.body.latitude), parseFloat(req.body.longitude)], //how to check this
+      street: req.body.street == "" ? null : req.body.street,
+      zipcode: req.body.zipcode == "" ? null : req.body.zipcode,
     },
-    borough: req.body.borough,
-    cusine: req.body.cuisine,
+    borough: req.body.borough == "" ? null : req.body.borough,
+    cuisine: req.body.cuisine == "" ? null : req.body.cuisine,
     grade: [
       {
-        date: new Date(req.body.date),
-        grade: req.body.grade,
-        score: parseFloat(req.body.score),
+        date: req.body.date == "" ? new Date() : new Date(req.body.date),
+        grade: req.body.grade == "" ? null : req.body.grade,
+        score: req.body.score == "" ? null : parseFloat(req.body.score),
       },
     ],
-    name: req.body.name,
-    restaurant_id: req.body.restaurant_id,
+    name: req.body.name == "" ? null : req.body.name,
+    restaurant_id: req.body.restaurant_id == "" ? null : req.body.restaurant_id,
   };
 
   axios({
