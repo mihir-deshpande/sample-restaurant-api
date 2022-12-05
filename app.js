@@ -21,8 +21,8 @@ Joi.objectId = require("joi-objectid")(Joi); // custom MongoDB ObjectId validato
 
 //security features
 const User = require("./database/user");
-const bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
+const bcrypt = require("bcryptjs");
+var jwt = require("jsonwebtoken");
 
 //handlebars
 const exphbs = require("express-handlebars");
@@ -169,7 +169,7 @@ app.post(
 //Route to update with id
 //TODO complete celebrate
 app.put(
-  "/api/restaurants",
+  "/api/restaurants/:id",
   // celebrate({
   //   [Segments.BODY]: Joi.object().keys({
   //     //address is object
@@ -177,6 +177,7 @@ app.put(
   //   }),
   // }),
   async function (req, res) {
+    console.log(req.params);
     const data = {
       address: req.body.address,
       borough: req.body.borough,
@@ -186,7 +187,7 @@ app.put(
       restaurant_id: req.body.restaurant_id,
     };
 
-    db.updateRestaurantById(data, req.body.id)
+    db.updateRestaurantById(data, req.params.id)
       .then((restaurant) => {
         console.log(restaurant._id.toString());
         return db.getRestaurantById(restaurant._id.toString());
@@ -221,16 +222,19 @@ app.delete(
 );
 
 // Register
-app.post("/register",
+app.post(
+  "/register",
   celebrate({
     [Segments.BODY]: Joi.object().keys({
       name: Joi.string().required(),
       password: Joi.string().min(4).alphanum().required(),
-      email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
-    })
+      email: Joi.string().email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net"] },
+      }),
+    }),
   }),
   async (req, res) => {
-
     try {
       // Get user input
       var name = req.body.name;
@@ -243,46 +247,49 @@ app.post("/register",
 
       if (oldUser) {
         return res.status(409).send("User Already Exist. Please Login");
-      }
-      else {
+      } else {
         //Encrypt user password
-      const salt = await bcrypt.genSalt(10);
-      encryptedPassword = await bcrypt.hash(password, salt);
+        const salt = await bcrypt.genSalt(10);
+        encryptedPassword = await bcrypt.hash(password, salt);
 
-      // Create user in our database
-      const user = await User.create({
-        name,
-        email: email.toLowerCase(), // sanitize: convert email to lowercase
-        password: encryptedPassword,
-      });
+        // Create user in our database
+        const user = await User.create({
+          name,
+          email: email.toLowerCase(), // sanitize: convert email to lowercase
+          password: encryptedPassword,
+        });
 
-      // Create token
-      const token = jwt.sign(
-        { user_id: user._id, email },
-        process.env.ACCESS_TOKEN,
-        { expiresIn: "4h", }
-      );
-      // save user token
-      user.token = token;
+        // Create token
+        const token = jwt.sign(
+          { user_id: user._id, email },
+          process.env.ACCESS_TOKEN,
+          { expiresIn: "4h" }
+        );
+        // save user token
+        user.token = token;
 
-      // return new user
-      res.status(201).json(user);
-      } 
+        // return new user
+        res.status(201).json(user);
+      }
     } catch (err) {
       console.log(err);
     }
-  });
+  }
+);
 
 // Login
-app.post("/login",
+app.post(
+  "/login",
   celebrate({
     [Segments.BODY]: Joi.object().keys({
-      email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }), // validate email
+      email: Joi.string().email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net"] },
+      }), // validate email
       password: Joi.string().min(4).alphanum().required(), // validate password
-    })
+    }),
   }),
   async (req, res) => {
-
     try {
       var email = req.body.email;
       var password = req.body.password;
@@ -293,34 +300,42 @@ app.post("/login",
       // compare user credentials with database
       if (user && (await bcrypt.compare(password, user.password))) {
         // Create token
-        const token = jwt.sign( { user_id: user._id, email }, process.env.ACCESS_TOKEN, { expiresIn: "4h", });
+        const token = jwt.sign(
+          { user_id: user._id, email },
+          process.env.ACCESS_TOKEN,
+          { expiresIn: "4h" }
+        );
         // save user token
         user.token = token;
         // user
         res.status(200).json(user);
-      }
-      else{
+      } else {
         res.status(400).send("Invalid Credentials");
       }
-    } 
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
-  });
+  }
+);
 
-
-// Middleware to verify access token  
+// Middleware to verify access token
 function verifyToken(req, res, next) {
-  const accessToken = req.body.token || req.query.token || req.headers["x-access-token"];
- 
+  const accessToken =
+    req.body.token || req.query.token || req.headers["x-access-token"];
+
   if (!accessToken) {
-    return res.status(403).send({statusCode: 403, message: "Missing Authentication Token"});
+    return res
+      .status(403)
+      .send({ statusCode: 403, message: "Missing Authentication Token" });
   }
   try {
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN); // verify access token
     req.user = decoded;
   } catch (err) {
-    return res.status(401).send({statusCode: 401, message: `Invalid Authentication Token! ${err}`});
+    return res.status(401).send({
+      statusCode: 401,
+      message: `Invalid Authentication Token! ${err}`,
+    });
   }
   return next();
 }
@@ -328,6 +343,7 @@ function verifyToken(req, res, next) {
 //BONUS FRONT END
 const axios = require("axios");
 
+//give user option to choose operation
 app.get("/gui", (req, res) => {
   res.render("gui");
 });
@@ -350,7 +366,87 @@ app.post("/gui", (req, res) => {
 });
 
 app.post("/gui/add", (req, res) => {
-  res.send(req.body);
+  const data = {
+    address: {
+      building: req.body.buildingNumber,
+      coord: [parseFloat(req.body.latitude), parseFloat(req.body.longitude)],
+      street: req.body.street,
+      zipcode: req.body.zipcode,
+    },
+    borough: req.body.borough,
+    cusine: req.body.cuisine,
+    grade: [
+      {
+        date: new Date(req.body.date),
+        grade: req.body.grade,
+        score: parseFloat(req.body.score),
+      },
+    ],
+    name: req.body.name,
+    restaurant_id: req.body.restaurant_id,
+  };
+
+  axios({
+    method: "post",
+    url: `${req.headers.origin}/api/restaurants`,
+    data: data,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  }).then((response) => {
+    res.json(response.data);
+  });
+});
+
+app.post("/gui/update", (req, res) => {
+  const data = {
+    address: {
+      building: req.body.buildingNumber,
+      coord: [parseFloat(req.body.latitude), parseFloat(req.body.longitude)],
+      street: req.body.street,
+      zipcode: req.body.zipcode,
+    },
+    borough: req.body.borough,
+    cusine: req.body.cuisine,
+    grade: [
+      {
+        date: new Date(req.body.date),
+        grade: req.body.grade,
+        score: parseFloat(req.body.score),
+      },
+    ],
+    name: req.body.name,
+    restaurant_id: req.body.restaurant_id,
+  };
+
+  axios({
+    method: "put",
+    url: `${req.headers.origin}/api/restaurants/${req.body.id}`,
+    data: data,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  }).then((response) => {
+    res.json(response.data);
+  });
+});
+
+app.post("/gui/delete", (req, res) => {
+  axios({
+    method: "delete",
+    url: `${req.headers.origin}/api/restaurants/${req.body.id}`,
+  }).then((response) => {
+    res.json(response.data);
+  });
+});
+
+app.post("/gui/view", (req, res) => {
+  axios({
+    method: "get",
+    url: `${req.headers.origin}/api/restaurants/${req.body.id}`,
+  }).then((response) => {
+    res.render("record", { data: response.data });
+  });
 });
 
 // Error route for celebrate

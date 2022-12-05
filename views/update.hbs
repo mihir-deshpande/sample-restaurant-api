@@ -1,6 +1,10 @@
 <div class="container">
-  <h1>Add new restaurant!</h1>
-  <form method="post" action="/gui/add">
+  <h1>Update an existing restaurant!</h1>
+  <form method="post" action="/gui/update">
+    <label for="id">Mongo ID for record you would like to update:
+    </label>
+    <input type="text" name="id" />
+    <br />
     <h2>Address</h2>
     <label for="buildingNumber">Building Number: </label>
     <input type="text" name="buildingNumber" />
@@ -28,11 +32,11 @@
     <label for="name">Name: </label>
     <input type="text" name="name" />
     <br />
-    <label for="restaurant_id">Restaurant ID: </label>
+    <br />
+    <label for="restaurant_id">Restaurant ID:
+    </label>
     <input type="text" name="restaurant_id" />
     <br />
-    <br />
-
     <h2>Grade</h2>
     <label for="grade">Grade: </label>
     <input type="text" name="grade" />
@@ -44,7 +48,7 @@
     <input type="date" name="date" required />
     <br />
     <br />
-    <input type="submit" value="Add restaurant!" />
+    <input type="submit" value="Update restaurant!" />
   </form>
 
 </div>
