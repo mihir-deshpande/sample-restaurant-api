@@ -1,0 +1,57 @@
+<div class="container">
+  <h1>Add new restaurant!</h1>
+  <form method="post" action="/gui/add">
+    <h2>Address</h2>
+    <label for="buildingNumber">Building Number: </label>
+    <input type="text" name="buildingNumber" />
+    <br />
+    <label for="street">Street: </label>
+    <input type="text" name="street" />
+    <br />
+    <label for="zipcode">Zipcode: </label>
+    <input type="text" name="zipcode" />
+    <br />
+    <label>Coordiantes: </label>
+    <label for="latitude">Latitude: </label>
+    <input type="number" name="latitude" />
+    <label for="longitude">Longitude: </label>
+    <input type="number" name="longitude" />
+    <br />
+    <label for="borough">Borough: </label>
+    <input type="text" name="borough" />
+    <br />
+    <br />
+
+    <label for="cuisine">Cuisine: </label>
+    <input type="text" name="cuisine" />
+    <br />
+    <label for="name">Name: </label>
+    <input type="text" name="name" />
+    <br />
+    <label for="restaurant_id">Restaurant ID: </label>
+    <input type="text" name="restaurant_id" />
+    <br />
+    <br />
+
+    <h2>Grade</h2>
+    <label for="grade">Grade: </label>
+    <input type="text" name="grade" />
+    <br />
+    <label for="score">Score: </label>
+    <input type="number" name="score" />
+    <br />
+    <label for="date">Date: </label>
+    <input type="date" name="date" />
+    <br />
+    <br />
+    <input type="submit" value="Add restaurant!" />
+  </form>
+  {{! 
+  address: req.body.address,
+  borough: req.body.borough,
+  cuisine: req.body.cusine,
+  grades: req.body.grade,
+  name: req.body.name,
+  restaurant_id: req.body.restaurant_id, }}
+
+</div>

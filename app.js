@@ -26,7 +26,6 @@ var jwt = require('jsonwebtoken');
 
 //handlebars
 const exphbs = require("express-handlebars");
-const e = require("express");
 app.engine(".hbs", exphbs.engine({ extname: ".hbs" }));
 app.set("view engine", "hbs");
 
@@ -100,7 +99,7 @@ app.post(
     [Segments.BODY]: Joi.object().keys({
       page: Joi.number().min(1).required(),
       perPage: Joi.number().min(1).required(),
-      borough: Joi.string().allow('').optional(),
+      borough: Joi.string().allow("").optional(),
     }),
   }),
   function (req, res) {
@@ -137,8 +136,6 @@ app.post(
     });
   }
 );
-
-
 
 //Route to add new data
 //TODO complete celebrate
@@ -222,7 +219,6 @@ app.delete(
       });
   }
 );
-
 
 // Register
 app.post("/register",
@@ -328,6 +324,34 @@ function verifyToken(req, res, next) {
   }
   return next();
 }
+
+//BONUS FRONT END
+const axios = require("axios");
+
+app.get("/gui", (req, res) => {
+  res.render("gui");
+});
+app.post("/gui", (req, res) => {
+  console.log(req.body);
+  switch (req.body.type) {
+    case "add":
+      res.render("add");
+      break;
+    case "view":
+      res.render("view");
+      break;
+    case "update":
+      res.render("update");
+      break;
+    case "delete":
+      res.render("delete");
+      break;
+  }
+});
+
+app.post("/gui/add", (req, res) => {
+  res.send(req.body);
+});
 
 // Error route for celebrate
 app.use(errors());
