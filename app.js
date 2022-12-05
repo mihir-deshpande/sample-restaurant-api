@@ -35,6 +35,7 @@ var PORT = process.env.PORT || 8000;
 //set up app
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: "true" }));
+app.use(bodyParser.json());
 
 //ROUTES
 app.get("/", function (req, res) {
@@ -122,13 +123,18 @@ app.post(
         "December",
       ];
       restaurants.forEach((restaurant) => {
+        console.log(restaurant.name);
         restaurant.grades.forEach((object) => {
-          object.date =
-            months[object.date.getMonth()] +
-            " " +
-            object.date.getDate() +
-            " " +
-            object.date.getFullYear();
+          if (object.date == null) {
+            object.date = "not given";
+          } else {
+            object.date =
+              months[object.date.getMonth()] +
+              " " +
+              object.date.getDate() +
+              " " +
+              object.date.getFullYear();
+          }
         });
       });
       res.render("display", { data: restaurants });
@@ -176,7 +182,7 @@ app.put(
   //   }),
   // }),
   async function (req, res) {
-    console.log(req.params);
+    console.log(req.body);
     const data = {
       address: req.body.address,
       borough: req.body.borough,
@@ -365,7 +371,7 @@ app.post("/gui", (req, res) => {
 });
 
 app.post("/gui/add", (req, res) => {
-  const data = {
+  let data = {
     address: {
       building: req.body.buildingNumber,
       coord: [parseFloat(req.body.latitude), parseFloat(req.body.longitude)],
@@ -376,7 +382,14 @@ app.post("/gui/add", (req, res) => {
     cuisine: req.body.cuisine,
     grade: [
       {
-        date: req.body.date == "" ? new Date() : new Date(req.body.date),
+        date:
+          req.body.date == ""
+            ? { $date: { $numberLong: new Date().getUTCMilliseconds } }
+            : {
+                $date: {
+                  $numberLong: new Date(req.body.date).getUTCMilliseconds,
+                },
+              },
         grade: req.body.grade,
         score: parseFloat(req.body.score),
       },
@@ -391,33 +404,44 @@ app.post("/gui/add", (req, res) => {
     data: data,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/json",
     },
   }).then((response) => {
-    res.json(response.data);
+    res.render("record", { data: response.data });
   });
 });
 
 app.post("/gui/update", (req, res) => {
-  //TODO check if user did not enter anyhting
-
   const data = {
     address: {
-      building: req.body.buildingNumber == "" ? null : req.body.buildingNumber,
-      coord: [parseFloat(req.body.latitude), parseFloat(req.body.longitude)], //how to check this
-      street: req.body.street == "" ? null : req.body.street,
-      zipcode: req.body.zipcode == "" ? null : req.body.zipcode,
+      building:
+        req.body.buildingNumber == "" ? undefined : req.body.buildingNumber,
+      coord: [
+        req.body.latitude == "" ? undefined : parseFloat(req.body.latitude),
+        req.body.longitude == "" ? undefined : parseFloat(req.body.longitude),
+      ],
+      street: req.body.street == "" ? undefined : req.body.street,
+      zipcode: req.body.zipcode == "" ? undefined : req.body.zipcode,
     },
-    borough: req.body.borough == "" ? null : req.body.borough,
-    cuisine: req.body.cuisine == "" ? null : req.body.cuisine,
+    borough: req.body.borough == "" ? undefined : req.body.borough,
+    cuisine: req.body.cuisine == "" ? undefined : req.body.cuisine,
     grade: [
       {
-        date: req.body.date == "" ? new Date() : new Date(req.body.date),
-        grade: req.body.grade == "" ? null : req.body.grade,
-        score: req.body.score == "" ? null : parseFloat(req.body.score),
+        date:
+          req.body.date == ""
+            ? { $date: { $numberLong: new Date().getUTCMilliseconds } }
+            : {
+                $date: {
+                  $numberLong: new Date(req.body.date).getUTCMilliseconds,
+                },
+              },
+        grade: req.body.grade == "" ? undefined : req.body.grade,
+        score: req.body.score == "" ? undefined : parseFloat(req.body.score),
       },
     ],
-    name: req.body.name == "" ? null : req.body.name,
-    restaurant_id: req.body.restaurant_id == "" ? null : req.body.restaurant_id,
+    name: req.body.name == "" ? undefined : req.body.name,
+    restaurant_id:
+      req.body.restaurant_id == "" ? undefined : req.body.restaurant_id,
   };
 
   axios({
@@ -426,9 +450,10 @@ app.post("/gui/update", (req, res) => {
     data: data,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/json",
     },
   }).then((response) => {
-    res.json(response.data);
+    res.render("record", { data: response.data });
   });
 });
 

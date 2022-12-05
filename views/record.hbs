@@ -1,10 +1,18 @@
 <div class="container">
   <h1>Name: {{data.name}}</h1>
   <h1>Cuisine: {{data.cuisine}}</h1>
-  <h1>Address:
-    {{data.address.building}}
-    {{data.address.street}}
-    {{data.address.zipcode}}</h1>
-  <h1>Borough: {{data.borough}}</h1>
+  <h1>Address:</h1>
+  <h2>Building: {{data.address.building}}</h2>
+  <h2>Street: {{data.address.street}}</h2>
+  <h2>Zipcode: {{data.address.zipcode}}</h2>
 
+  <h1>Borough: {{data.borough}}</h1>
+  <h1>Restaurant ID: {{data.restaurant_id}}</h1>
+  <h1>Grades</h1>
+  <ul>
+    {{#each data.grades}}
+      <li><h2>Date: {{this.date}} - Grade: <strong>{{this.grade}}</strong></h2>
+      </li>
+    {{/each}}
+  </ul>
 </div>
