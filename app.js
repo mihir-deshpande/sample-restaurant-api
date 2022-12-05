@@ -70,6 +70,7 @@ app.get(
 // find restaurant by id
 app.get(
   "/api/restaurants/:id",
+  verifyToken,
   celebrate({
     [Segments.PARAMS]: Joi.object().keys({
       id: Joi.objectId(), // validate if id is MongoDB object id
@@ -317,13 +318,13 @@ function verifyToken(req, res, next) {
   const accessToken = req.body.token || req.query.token || req.headers["x-access-token"];
  
   if (!accessToken) {
-    return res.status(403).send("An Access Token is required for authentication");
+    return res.status(403).send({statusCode: 403, message: "Missing Authentication Token"});
   }
   try {
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN); // verify access token
     req.user = decoded;
   } catch (err) {
-    return res.status(401).send(`Invalid Access Token! ${err}`);
+    return res.status(401).send({statusCode: 401, message: `Invalid Authentication Token! ${err}`});
   }
   return next();
 }
