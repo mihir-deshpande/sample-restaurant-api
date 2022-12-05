@@ -89,7 +89,6 @@ app.get(
 );
 
 // display restaurants using template engine
-// TODO Display grade by latest date, proper validation
 app.get("/restaurants", function (req, res) {
   res.render("display");
 });
@@ -143,7 +142,6 @@ app.post(
 );
 
 //Route to add new data
-//TODO complete celebrate
 app.post(
   "/api/restaurants",
   verifyToken,
@@ -177,7 +175,6 @@ app.post(
 );
 
 //Route to update with id
-//TODO complete celebrate
 app.put(
   "/api/restaurants/:id",
   verifyToken,
