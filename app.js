@@ -19,6 +19,11 @@ db.initialize(db.URL);
 const { celebrate, Joi, errors, Segments } = require("celebrate");
 Joi.objectId = require("joi-objectid")(Joi); // custom MongoDB ObjectId validator for Joi.
 
+//security features
+const User = require("./database/user");
+const bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
+
 //handlebars
 const exphbs = require("express-handlebars");
 const e = require("express");
@@ -33,7 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: "true" }));
 
 //ROUTES
-app.get("/", function (req, res) {
+app.get("/", verifyToken, function (req, res) {
   res.render("index");
 });
 
@@ -98,7 +103,7 @@ app.post(
     }),
   }),
   function (req, res) {
-    let page    = req.body.page;
+    let page = req.body.page;
     let perPage = req.body.perPage;
     let borough = req.body.borough;
 
@@ -217,7 +222,111 @@ app.delete(
   }
 );
 
-//TODO add security feature
+
+// Register
+app.post("/register",
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      name: Joi.string().required(),
+      password: Joi.string().min(4).alphanum().required(),
+      email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+    })
+  }),
+  async (req, res) => {
+
+    try {
+      // Get user input
+      var name = req.body.name;
+      var email = req.body.email;
+      var password = req.body.password;
+
+      // check if user already exist
+      // Validate if user exist in our database
+      const oldUser = await User.findOne({ email });
+
+      if (oldUser) {
+        return res.status(409).send("User Already Exist. Please Login");
+      }
+      else {
+        //Encrypt user password
+      const salt = await bcrypt.genSalt(10);
+      encryptedPassword = await bcrypt.hash(password, salt);
+
+      // Create user in our database
+      const user = await User.create({
+        name,
+        email: email.toLowerCase(), // sanitize: convert email to lowercase
+        password: encryptedPassword,
+      });
+
+      // Create token
+      const token = jwt.sign(
+        { user_id: user._id, email },
+        process.env.ACCESS_TOKEN,
+        { expiresIn: "4h", }
+      );
+      // save user token
+      user.token = token;
+
+      // return new user
+      res.status(201).json(user);
+      } 
+    } catch (err) {
+      console.log(err);
+    }
+  });
+
+// Login
+app.post("/login",
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }), // validate email
+      password: Joi.string().min(4).alphanum().required(), // validate password
+    })
+  }),
+  async (req, res) => {
+
+    try {
+      var email = req.body.email;
+      var password = req.body.password;
+
+      // Validate if user exist in our database
+      const user = await User.findOne({ email });
+
+      // compare user credentials with database
+      if (user && (await bcrypt.compare(password, user.password))) {
+        // Create token
+        const token = jwt.sign( { user_id: user._id, email }, process.env.ACCESS_TOKEN, { expiresIn: "4h", });
+        // save user token
+        user.token = token;
+        // user
+        res.status(200).json(user);
+      }
+      else{
+        res.status(400).send("Invalid Credentials");
+      }
+    } 
+    catch (err) {
+      console.log(err);
+    }
+  });
+
+
+// Middleware to verify access token  
+function verifyToken(req, res, next) {
+  const accessToken = req.body.token || req.query.token || req.headers["x-access-token"];
+ 
+  if (!accessToken) {
+    return res.status(403).send("An Access Token is required for authentication");
+  }
+  try {
+    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN); // verify access token
+    req.user = decoded;
+  } catch (err) {
+    return res.status(401).send(`Invalid Access Token! ${err}`);
+  }
+  return next();
+}
 
 // Error route for celebrate
 app.use(errors());
