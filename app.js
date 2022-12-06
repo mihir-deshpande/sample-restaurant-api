@@ -442,6 +442,11 @@ app.post("/gui/update", (req, res) => {
   ) {
     addressChange = true;
   }
+
+  let gradeChange = false;
+  if (req.body.date != "" || req.body.grade != "" || req.body.score != "") {
+    gradeChange = true;
+  }
   const data = {
     address: addressChange
       ? {
@@ -459,13 +464,16 @@ app.post("/gui/update", (req, res) => {
       : undefined,
     borough: req.body.borough == "" ? undefined : req.body.borough,
     cuisine: req.body.cuisine == "" ? undefined : req.body.cuisine,
-    grade: [
-      {
-        date: req.body.date == "" ? new Date() : new Date(req.body.date),
-        grade: req.body.grade == "" ? undefined : req.body.grade,
-        score: req.body.score == "" ? undefined : parseFloat(req.body.score),
-      },
-    ],
+    grade: gradeChange
+      ? [
+          {
+            date: req.body.date == "" ? new Date() : new Date(req.body.date),
+            grade: req.body.grade == "" ? undefined : req.body.grade,
+            score:
+              req.body.score == "" ? undefined : parseFloat(req.body.score),
+          },
+        ]
+      : undefined,
     name: req.body.name == "" ? undefined : req.body.name,
     restaurant_id:
       req.body.restaurant_id == "" ? undefined : req.body.restaurant_id,
