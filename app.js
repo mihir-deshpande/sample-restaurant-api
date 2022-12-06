@@ -146,15 +146,15 @@ app.post(
   "/api/restaurants",
   verifyToken,
   celebrate({
-     [Segments.BODY]: Joi.object().keys({
+    [Segments.BODY]: Joi.object().keys({
       address: Joi.object().allow("").optional(),
       name: Joi.string().required(),
       borough: Joi.string().allow("").optional(),
       cuisine: Joi.string().allow("").optional(),
       restaurant_id: Joi.string().allow("").optional(),
-      grade: Joi.array().allow("").optional()
-   }),
- }),
+      grade: Joi.array().allow("").optional(),
+    }),
+  }),
   function (req, res) {
     const data = {
       address: req.body.address,
@@ -180,17 +180,17 @@ app.put(
   verifyToken,
   celebrate({
     [Segments.BODY]: Joi.object().keys({
-     address: Joi.object().allow("").optional(),
-     name: Joi.string().required(),
-     borough: Joi.string().allow("").optional(),
-     cuisine: Joi.string().allow("").optional(),
-     restaurant_id: Joi.string().allow("").optional(),
-     grade: Joi.array().allow("").optional()
+      address: Joi.object().allow("").optional(),
+      name: Joi.string().required(),
+      borough: Joi.string().allow("").optional(),
+      cuisine: Joi.string().allow("").optional(),
+      restaurant_id: Joi.string().allow("").optional(),
+      grade: Joi.array().allow("").optional(),
+    }),
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.objectId(), // validate if id is MongoDB object id
+    }),
   }),
-  [Segments.PARAMS]: Joi.object().keys({
-    id: Joi.objectId(), // validate if id is MongoDB object id
-  }),
-}),
   async function (req, res) {
     console.log(req.body);
     const data = {
@@ -332,7 +332,9 @@ app.post(
         // user
         res.status(200).json(user);
       } else {
-        res.status(400).send("{ statusCode: 400, message: 'Invalid credentials' }");
+        res
+          .status(400)
+          .send("{ statusCode: 400, message: 'Invalid credentials' }");
       }
     } catch (err) {
       console.log(err);
@@ -400,10 +402,7 @@ app.post("/gui/add", (req, res) => {
     cuisine: req.body.cuisine,
     grade: [
       {
-        date:
-          req.body.date == ""
-            ? new Date()
-            : new Date(req.body.date),
+        date: req.body.date == "" ? new Date() : new Date(req.body.date),
         grade: req.body.grade,
         score: parseFloat(req.body.score),
       },
@@ -420,36 +419,49 @@ app.post("/gui/add", (req, res) => {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       "Content-Type": "application/json",
-      "x-access-token": process.env.DEV_ACCESS_TOKEN
+      "x-access-token": process.env.DEV_ACCESS_TOKEN,
     },
-  }).then((response) => {
-    res.render("record", { data: response.data });
   })
-  .catch((err) => {
-    res.send(JSON.stringify(err.response.data))
-  });
+    .then((response) => {
+      console.log(response);
+      res.render("record", { data: response.data });
+    })
+    .catch((err) => {
+      res.send(JSON.stringify(err.response.data));
+    });
 });
 
 app.post("/gui/update", (req, res) => {
+  let addressChange = false;
+  if (
+    req.body.buildingNumber != "" ||
+    req.body.latitude != "" ||
+    req.body.longitude != "" ||
+    req.body.street != "" ||
+    req.body.zipcode != ""
+  ) {
+    addressChange = true;
+  }
   const data = {
-    address: {
-      building:
-        req.body.buildingNumber == "" ? undefined : req.body.buildingNumber,
-      coord: [
-        req.body.latitude == "" ? undefined : parseFloat(req.body.latitude),
-        req.body.longitude == "" ? undefined : parseFloat(req.body.longitude),
-      ],
-      street: req.body.street == "" ? undefined : req.body.street,
-      zipcode: req.body.zipcode == "" ? undefined : req.body.zipcode,
-    },
+    address: addressChange
+      ? {
+          building:
+            req.body.buildingNumber == "" ? undefined : req.body.buildingNumber,
+          coord: [
+            req.body.latitude == "" ? undefined : parseFloat(req.body.latitude),
+            req.body.longitude == ""
+              ? undefined
+              : parseFloat(req.body.longitude),
+          ],
+          street: req.body.street == "" ? undefined : req.body.street,
+          zipcode: req.body.zipcode == "" ? undefined : req.body.zipcode,
+        }
+      : undefined,
     borough: req.body.borough == "" ? undefined : req.body.borough,
     cuisine: req.body.cuisine == "" ? undefined : req.body.cuisine,
     grade: [
       {
-        date:
-        req.body.date == ""
-          ? new Date()
-          : new Date(req.body.date),
+        date: req.body.date == "" ? new Date() : new Date(req.body.date),
         grade: req.body.grade == "" ? undefined : req.body.grade,
         score: req.body.score == "" ? undefined : parseFloat(req.body.score),
       },
@@ -466,14 +478,15 @@ app.post("/gui/update", (req, res) => {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       "Content-Type": "application/json",
-      "x-access-token": process.env.DEV_ACCESS_TOKEN
+      "x-access-token": process.env.DEV_ACCESS_TOKEN,
     },
-  }).then((response) => {
-    res.render("record", { data: response.data });
   })
-  .catch((err) => {
-    res.send(JSON.stringify(err.response.data))
-  });
+    .then((response) => {
+      res.render("record", { data: response.data });
+    })
+    .catch((err) => {
+      res.send(JSON.stringify(err.response.data));
+    });
 });
 
 app.post("/gui/delete", (req, res) => {
@@ -481,27 +494,29 @@ app.post("/gui/delete", (req, res) => {
     method: "delete",
     url: `${req.headers.origin}/api/restaurants/${req.body.id}`,
     headers: {
-      "x-access-token": process.env.DEV_ACCESS_TOKEN
-    }
-  }).then((response) => {
-    res.json(response.data);
+      "x-access-token": process.env.DEV_ACCESS_TOKEN,
+    },
   })
-  .catch((err) => {
-    res.send(JSON.stringify(err.response.data))
-  });
+    .then((response) => {
+      res.json(response.data);
+    })
+    .catch((err) => {
+      res.send(JSON.stringify(err.response.data));
+    });
 });
 
 app.post("/gui/view", (req, res) => {
   axios({
     method: "get",
     url: `${req.headers.origin}/api/restaurants/${req.body.id}`,
-  }).then((response) => {
-    console.log(response.data)
-    res.render("record", { data: response.data });
-  })  
-  .catch((err) => {
-    res.send(JSON.stringify(err.response.data))
-  });
+  })
+    .then((response) => {
+      console.log(response.data);
+      res.render("record", { data: response.data });
+    })
+    .catch((err) => {
+      res.send(JSON.stringify(err.response.data));
+    });
 });
 
 // Error route for celebrate
