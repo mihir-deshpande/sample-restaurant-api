@@ -1,5 +1,5 @@
 # Sample Restaurant RESTful API
-A RESTful API built with Express.js and Node.js and MongoDB using <a href="https://www.mongodb.com/docs/atlas/sample-data/sample-restaurants/" target="_blank">Sample Restaurant Database</a> to manage a collection of restaurants.
+A RESTful API built with Express.js, Node.js and MongoDB using <a href="https://www.mongodb.com/docs/atlas/sample-data/sample-restaurants/" target="_blank">Sample Restaurant Database</a> to manage a collection of restaurants.
 
 <a href="https://breakable-ray-sweater.cyclic.app/" target="_blank">https://breakable-ray-sweater.cyclic.app/</a>
 
